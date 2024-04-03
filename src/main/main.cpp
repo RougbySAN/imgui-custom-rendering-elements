@@ -1,7 +1,8 @@
 #include<iostream>
+#include "gui.h"
 
 int main()
 {
-    std::cout << "Hello World" << std::endl;
+    gui_loop();
     return 0; 
 }
