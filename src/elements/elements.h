@@ -14,6 +14,9 @@ enum exit_direction {
 
 #define MID_POINT_DRAG_MARGIN 10
 
+#define POINT_HIT_DETECTION_MARGIN 100
+#define LINE_HIT_DETECTION_MARGIN 4
+
 class Point {
 private:
     float x; // X-coordinate of the point
@@ -31,7 +34,15 @@ public:
     float getY() const { return y; }
     void setY(const float newY) { y = newY; }
 
+    void drag_point(const float _x, const float _y) {
+        x += _x;
+        y += _y;
+    }
 
+    void update_point(const float _x, const float _y) {
+        x = _x;
+        y = _y;
+    }
 
     // Function to calculate distance between this point and another point
     double distanceTo(const Point& other) const {
@@ -45,6 +56,16 @@ public:
         float dx = x - _x;
         float dy = y - _y;
         return std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
+    }
+
+    // Hit detection with margin
+    bool isHit(const Point& other) const {
+        return distanceTo(other) <= POINT_HIT_DETECTION_MARGIN;
+    }
+
+    // Hit detection with margin for x and y coordinates
+    bool isHit(const float _x, const float _y) const {
+        return distanceTo(_x, _y) <= POINT_HIT_DETECTION_MARGIN;
     }
 };
 
@@ -81,6 +102,19 @@ public:
                                    (p2.getX() - p1.getX()) * point.getY() + 
                                    p2.getX() * p1.getY() - p2.getY() * p1.getX()) /
                           std::sqrt(std::pow(p2.getY() - p1.getY(), 2) + 
+                                    std::pow(p2.getX() - p1.getX(), 2));
+
+        // Check if the distance is within the margin
+        return distance <= margin;
+    }
+
+    // Function to check if a point defined by x and y coordinates is on the line with a given margin
+    bool is_point_on_line(const float x, const float y, double margin = 0.0) const {
+        // Calculate the distance from the line to the point
+        double distance = std::abs((p2.getY() - p1.getY()) * x - 
+                                (p2.getX() - p1.getX()) * y + 
+                                p2.getX() * p1.getY() - p2.getY() * p1.getX()) /
+                        std::sqrt(std::pow(p2.getY() - p1.getY(), 2) + 
                                     std::pow(p2.getX() - p1.getX(), 2));
 
         // Check if the distance is within the margin
@@ -131,6 +165,11 @@ public:
         float dx = p1.getX() - p2.getX();
         float dy = p1.getY() - p2.getY();
         return (dx + dy);
+    }
+
+    bool mid_point_is_hit(const float _x, const float _y) {
+        std::vector<straight_line> line_list = this->GetLineList();
+        return line_list[1].is_point_on_line(_x, _y, LINE_HIT_DETECTION_MARGIN);
     }
 
     void dragMidpoint(float dx, float dy) {
@@ -213,6 +252,7 @@ public:
     void update_middpoint() {
         calculateMidpoint();
     }
+
 
 private:
     // Private helper function to calculate midpoint
