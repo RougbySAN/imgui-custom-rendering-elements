@@ -12,34 +12,38 @@ enum exit_direction {
     RIGHT,
 };
 
+#define MID_POINT_DRAG_MARGIN 10
+
 class Point {
 private:
-    int x; // X-coordinate of the point
-    int y; // Y-coordinate of the point
+    float x; // X-coordinate of the point
+    float y; // Y-coordinate of the point
 
 public:
     // Constructor
-    Point(int xCoord, int yCoord) : x(xCoord), y(yCoord) {}
+    Point(const float xCoord, const float yCoord) : x(xCoord), y(yCoord) {}
     Point() : x(0), y(0) {}
 
     // Getters and setters for x and y coordinates
-    int getX() const { return x; }
-    void setX(int newX) { x = newX; }
+    float getX() const { return x; }
+    void setX(const float newX) { x = newX; }
     
-    int getY() const { return y; }
-    void setY(int newY) { y = newY; }
+    float getY() const { return y; }
+    void setY(const float newY) { y = newY; }
+
+
 
     // Function to calculate distance between this point and another point
     double distanceTo(const Point& other) const {
-        int dx = x - other.x;
-        int dy = y - other.y;
+        float dx = x - other.x;
+        float dy = y - other.y;
         return std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
     }
 
     // Function to calculate distance between this point and another point
-    double distanceTo(const int _x, const int _y) const {
-        int dx = x - _x;
-        int dy = y - _y;
+    double distanceTo(const float _x, const float _y) const {
+        float dx = x - _x;
+        float dy = y - _y;
         return std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
     }
 };
@@ -65,8 +69,8 @@ public:
 
     // Function to calculate the length of the line
     double length() const {
-        int dx = p1.getX() - p2.getX();
-        int dy = p1.getY() - p2.getY();
+        float dx = p1.getX() - p2.getX();
+        float dy = p1.getY() - p2.getY();
         return std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
     }
 
@@ -101,6 +105,15 @@ public:
         calculateLineExits(p1.getX() - p2.getX(), p1.getY() - p2.getY());   // Calculate the cable exit direction from point
     }
 
+    orthogonal_line(const float x1, const float y1, const float x2, const float y2) {
+        p1 = Point(x1, y1);
+        p2 = Point(x2, y2);
+
+        calculateMidpoint(); // Calculate the midpoint upon construction
+
+        calculateLineExits(p1.getX() - p2.getX(), p1.getY() - p2.getY());   // Calculate the cable exit direction from point
+    }
+
     // Getter functions for endpoints
     const Point& getPoint1() const { return p1; }
     const Point& getPoint2() const { return p2; }
@@ -115,74 +128,28 @@ public:
 
     // Function to calculate the length of the line
     double length() const {
-        int dx = p1.getX() - p2.getX();
-        int dy = p1.getY() - p2.getY();
+        float dx = p1.getX() - p2.getX();
+        float dy = p1.getY() - p2.getY();
         return (dx + dy);
     }
 
-    void dragMidpoint(int dx, int dy) {
-        // Calculate the direction vector of the line from p1 to p2
-        int line_dx = p2.getX() - p1.getX();
-        int line_dy = p2.getY() - p1.getY();
+    void dragMidpoint(float dx, float dy) {
+        mid_point.setX(mid_point.getX() + dx);
+        mid_point.setY(mid_point.getY() + dy);
 
-        // Calculate the length of the line segment between p1 and p2
-        double line_length = std::sqrt(line_dx * line_dx + line_dy * line_dy);
+        // Ensure X coordinate is within limits
+        float upper_limit = std::max(p1.getX(), p2.getX());
+        float lower_limit = std::min(p1.getX(), p2.getX());
 
-        // Calculate the unit vector along the line
-        double line_unit_x = line_dx / line_length;
-        double line_unit_y = line_dy / line_length;
+        mid_point.setX(clamp_value(mid_point.getX(), upper_limit, lower_limit));
 
-        // Calculate the dot product of the drag vector and the unit vector along the line
-        int dot_product = dx * line_unit_x + dy * line_unit_y;
+        // Ensure X coordinate is within limits
+        upper_limit = std::max(p1.getY(), p2.getY());
+        lower_limit = std::min(p1.getY(), p2.getY());
 
-        // Project the dragged amount onto the line
-        int dx_projected = static_cast<int>(dot_product * line_unit_x);
-        int dy_projected = static_cast<int>(dot_product * line_unit_y);
+        mid_point.setY(clamp_value(mid_point.getY(), upper_limit, lower_limit));
 
-        // Update the midpoint coordinates
-        int new_mid_x = mid_point.getX() + dx_projected;
-        int new_mid_y = mid_point.getY() + dy_projected;
-
-        // Update the midpoint
-        mid_point = Point(new_mid_x, new_mid_y);
     }
-
-    // // Function to drag the midpoint within certain bounds
-    // void dragMidpoint(int dx, int dy) {
-
-    //     /* Calculate midpoint drag */
-    //     switch (p1_exit)
-    //     {
-    //     case LEFT: {
-    //         dy = 0;
-    //         dx = clamp_value(dx, p1.getX(), p2.getX());
-    //         break;
-    //     }
-    //     case RIGHT: {
-    //         dy = 0;
-    //         dx = clamp_value(dx, p2.getX(), p1.getX());
-    //         break;
-    //     }
-    //     case UP: {
-    //         dx = 0;
-    //         dy = clamp_value(dy, p2.getY(), p1.getY());
-    //         break;
-    //     }
-    //     case DOWN: {
-    //         dx = 0;
-    //         dy = clamp_value(dy, p1.getY(), p2.getY());
-    //         break;
-    //     }
-        
-    //     default:
-    //         break;
-    //     }
-
-    //     /* Update mid point */
-    //     int newX = mid_point.getX() + dx;
-    //     int newY = mid_point.getY() + dy;
-    //     mid_point = Point(newX, newY);
-    // }
 
 
     std::vector<straight_line> GetLineList() {
@@ -206,7 +173,7 @@ public:
             temp_line = straight_line(Point(p1.getX(), p1.getY()), Point(mid_point.getX(), p1.getY()));
             line_list.push_back(temp_line);
 
-            temp_line = straight_line(Point(mid_point.getX(), p2.getY()), Point(mid_point.getX(), p2.getY()));
+            temp_line = straight_line(Point(mid_point.getX(), p1.getY()), Point(mid_point.getX(), p2.getY()));
             line_list.push_back(temp_line);
 
             temp_line = straight_line(Point(mid_point.getX(), p2.getY()), Point(p2.getX(), p2.getY()));
@@ -214,25 +181,25 @@ public:
             break;
         }
         case UP: {
-            temp_line = straight_line(Point(p1.getX(), p1.getY()), Point(p1.getX(), mid_point.getY()));
-            line_list.push_back(temp_line);
+            // temp_line = straight_line(Point(p1.getX(), p1.getY()), Point(p1.getX(), mid_point.getY()));
+            // line_list.push_back(temp_line);
 
-            temp_line = straight_line(Point(p1.getX(), mid_point.getY()), Point(p2.getX(), mid_point.getY()));
-            line_list.push_back(temp_line);
+            // temp_line = straight_line(Point(p1.getX(), mid_point.getY()), Point(p2.getX(), mid_point.getY()));
+            // line_list.push_back(temp_line);
 
-            temp_line = straight_line(Point(p2.getX(), p2.getY()), Point(p2.getX(), mid_point.getY()));
-            line_list.push_back(temp_line);
+            // temp_line = straight_line(Point(p2.getX(), p2.getY()), Point(p2.getX(), mid_point.getY()));
+            // line_list.push_back(temp_line);
             break;
         }
         case DOWN: {
-            temp_line = straight_line(Point(p1.getX(), p1.getY()), Point(p1.getX(), mid_point.getY()));
-            line_list.push_back(temp_line);
+            // temp_line = straight_line(Point(p1.getX(), p1.getY()), Point(p1.getX(), mid_point.getY()));
+            // line_list.push_back(temp_line);
 
-            temp_line = straight_line(Point(p1.getX(), mid_point.getY()), Point(p2.getX(), mid_point.getY()));
-            line_list.push_back(temp_line);
+            // temp_line = straight_line(Point(p1.getX(), mid_point.getY()), Point(p2.getX(), mid_point.getY()));
+            // line_list.push_back(temp_line);
 
-            temp_line = straight_line(Point(p2.getX(), p2.getY()), Point(p2.getX(), mid_point.getY()));
-            line_list.push_back(temp_line);
+            // temp_line = straight_line(Point(p2.getX(), p2.getY()), Point(p2.getX(), mid_point.getY()));
+            // line_list.push_back(temp_line);
             break;
         }
         
@@ -250,38 +217,30 @@ public:
 private:
     // Private helper function to calculate midpoint
     void calculateMidpoint() {
-        int midX = (p1.getX() + p2.getX()) / 2;
-        int midY = (p1.getY() + p2.getY()) / 2;
+        float midX = (p1.getX() + p2.getX()) / 2;
+        float midY = (p1.getY() + p2.getY()) / 2;
         mid_point = Point(midX, midY);
     }
 
-    void calculateLineExits(const int dx, const int dy) {
+    void calculateLineExits(const float dx, const float dy) {
         if (dx > 0 && dy > 0) {
-            p1_exit = RIGHT;
-            p2_exit = LEFT; 
+            p1_exit = LEFT;
+            p2_exit = RIGHT; 
         } else if (dx > 0 && dy < 0) {
+            p1_exit = LEFT;
+            p2_exit = RIGHT;
+        } else if (dx < 0 && dy > 0) {
             p1_exit = RIGHT;
             p2_exit = LEFT;
-        } else if (dx < 0 && dy > 0) {
-            p1_exit = LEFT;
-            p2_exit = RIGHT;
         } else {
-            p1_exit = LEFT;
-            p2_exit = RIGHT;
+            p1_exit = RIGHT;
+            p2_exit = LEFT;
         }
     }
 
-    int clamp_value(const int x, const int limit_upper, const int limit_lower) {
+    int clamp_value(const float val, const float limit_upper, const float limit_lower) {
         
-        if(x > limit_upper) {
-            return limit_upper;
-        }
-
-        if(x < limit_lower) {
-            return limit_lower;
-        }
-
-        return x;
+        return std::max(limit_lower + MID_POINT_DRAG_MARGIN, std::min(val, limit_upper - MID_POINT_DRAG_MARGIN));
         
     }
 };
