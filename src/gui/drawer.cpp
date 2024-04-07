@@ -147,22 +147,38 @@ void Draw(bool* p_open)
         }
 
        
-        int16_t hit_point = -1;
-        int16_t hit_mid_point = -1; 
+        // Mouse locked element ids
+        static int16_t lock_point_id = -1;
+        static int16_t lock_mid_point_id = -1;
 
-        
-        hit_point = point_hit_detection(exits, mouse_pos_in_canvas);
-        hit_mid_point = mid_point_hit_detection(orthogonal_line_list, mouse_pos_in_canvas);
+        // Element hit detection
+        int16_t hit_point = point_hit_detection(exits, mouse_pos_in_canvas);
+        int16_t hit_mid_point = mid_point_hit_detection(orthogonal_line_list, mouse_pos_in_canvas);
 
-        std::cout << "The hit point is " << hit_point << " the hit ortho is " << hit_mid_point << std::endl;
-
-        if(hit_point != -1 && is_canvas_held) {
-            exits[hit_point].update_point(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y);
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            if (hit_point != -1) {
+                lock_point_id = hit_point;
+            } else if (hit_mid_point != -1) {
+                lock_mid_point_id = hit_mid_point;
+            }
         }
 
-        if(hit_mid_point != -1 && is_canvas_held) {
-            orthogonal_line_list[hit_mid_point].dragMidpoint(delta_drag_left_mouse.x, delta_drag_left_mouse.y);
+        if (is_canvas_held) {
+            if (lock_point_id != -1) {
+                exits[lock_point_id].update_point(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y);
+            } else if (lock_mid_point_id != -1) {
+                orthogonal_line_list[lock_mid_point_id].dragMidpoint(delta_drag_left_mouse.x, delta_drag_left_mouse.y);
+            }
         }
+
+        // Release lock elements when released
+        if (!is_canvas_held) {
+            lock_point_id = -1;
+            lock_mid_point_id = -1;
+        }
+
+
+        std::cout << "The hit point is " << lock_point_id << " the hit ortho is " << lock_mid_point_id << "mid_point " << hit_mid_point<< std::endl;
 
         for (int i = 0; i + 1 < exits.size(); i += 2)
         {

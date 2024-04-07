@@ -9,8 +9,12 @@ private:
     Point p2;
 
 public:
+    uint16_t unique_id;
+
+
+public:
     // Constructors
-    straight_line(const Point& point1, const Point& point2);
+    straight_line(const Point& point1, const Point& point2, const uint16_t unique_id = 0);
     straight_line();
 
     // Getter functions for endpoints

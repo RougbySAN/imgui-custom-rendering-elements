@@ -1,5 +1,7 @@
 #pragma once
 
+#include "stdint.h"
+
 enum exit_direction {
     UP = 1,
     DOWN,
@@ -7,7 +9,7 @@ enum exit_direction {
     RIGHT,
 };
 
-#define MID_POINT_DRAG_MARGIN 10
+#define MID_POINT_DRAG_MARGIN 4.0f
 
-#define POINT_HIT_DETECTION_MARGIN 100
-#define LINE_HIT_DETECTION_MARGIN 4
+#define POINT_HIT_DETECTION_MARGIN 4.0f
+#define LINE_HIT_DETECTION_MARGIN 4.0f

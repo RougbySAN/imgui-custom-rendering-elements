@@ -2,7 +2,7 @@
 
 
 // Constructors
-straight_line::straight_line(const Point& point1, const Point& point2) : p1(point1), p2(point2) {}
+straight_line::straight_line(const Point& point1, const Point& point2, const uint16_t unique_id) : p1(point1), p2(point2), unique_id(unique_id) {}
 straight_line::straight_line() : p1(Point()), p2(Point()) {}
 
 // Getter functions for endpoints

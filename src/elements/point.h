@@ -3,13 +3,14 @@
 #include <math.h>
 #include "private.h"
 
-#define POINT_HIT_DETECTION_MARGIN 100
-
 
 class Point {
 private:
     float x; // X-coordinate of the point
     float y; // Y-coordinate of the point
+
+public:
+    uint16_t unique_id;
 
 public:
     // Constructor

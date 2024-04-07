@@ -14,6 +14,9 @@ private:
     enum exit_direction p2_exit;
 
 public:
+    uint16_t unique_id;
+
+public:
     // Constructor
     orthogonal_line(const Point& point1, const Point& point2);
 
