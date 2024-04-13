@@ -1,4 +1,4 @@
-# imgui-custom-rendering-primitives
+# imgui-custom-rendering-elements
 Dear ImGui based custom element and primitive drawer.
 
 <a name="readme-top"></a>
@@ -8,7 +8,7 @@ Dear ImGui based custom element and primitive drawer.
 
 At first, this project was a necessity for another project I was working on. This project initially aimed to link draggable items with orthogonal lines, similar to tools like draw.io or MS Visio in my Dear ImGui setup. But as I worked on it, I saw the potential for something bigger—a user-friendly element list on the side, letting users create cool flowcharts and system designs hassle-free. It's an extension of the Dear ImGui custom rendering demo in the demo window, and I plan to add more elements and features down the line!
 
-![image](https://github.com/RougbySAN/imgui-custom-rendering-primitives/assets/104524930/305a948f-eb01-46ad-b6d2-5892dad68167)
+![image](https://github.com/RougbySAN/imgui-custom-rendering-elements/assets/104524930/305a948f-eb01-46ad-b6d2-5892dad68167)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -71,7 +71,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 @RougbySAN on Github
 
-Project Link: [https://github.com/RougbySAN/imgui-custom-rendering-primitives](https://github.com/RougbySAN/imgui-custom-rendering-primitives)
+Project Link: [https://github.com/RougbySAN/imgui-custom-rendering-elements](https://github.com/RougbySAN/imgui-custom-rendering-elements)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
