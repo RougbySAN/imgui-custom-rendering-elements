@@ -1,2 +1,2 @@
-# imgui-orthogonal-line-connector
-Dear ImGui based orthogonal line drawer.
+# imgui-custom-rendering-primitives
+Dear ImGui based custome element and primitive drawer.
