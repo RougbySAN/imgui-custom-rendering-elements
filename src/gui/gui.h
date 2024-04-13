@@ -1,8 +1,11 @@
 #pragma once
 
 #include "math.h"
+#include <functional>
+#include <algorithm>
 #include "elements.h"
 #include <iostream>
+#include <memory>
 
 // Dear ImGui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)

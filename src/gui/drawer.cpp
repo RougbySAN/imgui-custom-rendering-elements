@@ -1,44 +1,104 @@
 #include "gui.h"
 
+// Element container
+static std::vector<std::unique_ptr<element>> elements;
 
-// Add a |_| looking shape
-static void PathConcaveShape(ImDrawList* draw_list, float x, float y, float sz)
-{
-    const ImVec2 pos_norms[] = { { 0.0f, 0.0f }, { 0.3f, 0.0f }, { 0.3f, 0.7f }, { 0.7f, 0.7f }, { 0.7f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
-    for (const ImVec2& p : pos_norms)
-        draw_list->PathLineTo(ImVec2(x + 0.5f + (int)(sz * p.x), y + 0.5f + (int)(sz * p.y)));
+// Global unique id
+static element_id_t unique_id = 0;
+
+// Total number of elements addedx
+static uint16_t num_elements = 0;
+
+
+// Add point to drawing elements
+static void add_point(const Point& p) {
+    elements.push_back(std::make_unique<Point>(p));
+    num_elements++;
+}
+
+// Add straight line to drawing elements
+static void add_straight_line(const straight_line& s) {
+    elements.push_back(std::make_unique<straight_line>(s));
+    num_elements++;
+}
+
+// Add orthogonal line to drawing elements
+static void add_orthogonal_line(const orthogonal_line& o) {
+    elements.push_back(std::make_unique<orthogonal_line>(o));
+    num_elements++;
+}
+
+static void delete_element_by_id(const element_id_t _id) {
+    // Check if id matches Lambda
+    std::function<bool(const std::unique_ptr<element>&)> id_match = [_id](const std::unique_ptr<element>& elem) {
+        return elem->unique_id == _id;
+    };
+
+    // Find the iterator pointing to the element to delete
+    std::vector<std::unique_ptr<element>>::iterator it = std::find_if(elements.begin(), elements.end(), id_match);
+
+    if (it != elements.end()) {
+        // Element with matching ID found, erase it from the vector
+        num_elements--;
+        elements.erase(it);
+    }
+}
+
+
+static void move_element_point_by_id(const element_id_t _id, const float _x, const float _y) {
+    for (std::unique_ptr<element>& elem : elements) {
+        if (elem->unique_id == _id) {
+            // Check if the element is movable (has a move function)
+            elem->move_element_point(_x, _y);
+        }
+    }
+}
+
+
+static void move_element_by_id(const element_id_t _id, const float _x, const float _y) {
+    for (std::unique_ptr<element>& elem : elements) {
+        if (elem->unique_id == _id) {
+            // Check if the element is movable (has a move function)
+            elem->move_element(_x, _y);
+        }
+    }
+}
+
+
+static void lock_hit_point_by_id(const element_id_t _id) {
+    for (std::unique_ptr<element>& elem : elements) {
+        if (elem->unique_id == _id) {
+            // Check if the element is movable (has a move function)
+            elem->lock_element_hit_point();
+        }
+    }
+}
+
+
+static void release_hit_point_by_id(const element_id_t _id) {
+    for (std::unique_ptr<element>& elem : elements) {
+        if (elem->unique_id == _id) {
+            // Check if the element is movable (has a move function)
+            elem->release_element_hit_point();
+        }
+    }
 }
 
 
 /* Draw a rectengular canvas between top-left and bottom right points */
-
 void draw_canvas(ImDrawList*& draw_list, const ImVec2 p1, const ImVec2 p2)
 {
     draw_list->AddRectFilled(p1, p2, IM_COL32(50, 50, 50, 255));        // Fill canvas bg
     draw_list->AddRect(p1, p2, IM_COL32(255, 255, 255, 255));           // Outline canvas
-
 }
 
 
-// Hit detection for points
-int16_t point_hit_detection(const std::vector<Point> exits, const ImVec2 mouse_coord) {
-    for(int i = 0; i < exits.size(); i++)
-    {
-
-        if(exits[i].isHit(mouse_coord.x, mouse_coord.y)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-
-// Hit detection for orthogonal line
-int16_t mid_point_hit_detection(std::vector<orthogonal_line> ortho_lines, const ImVec2 mouse_coord) {
-    for(int i = 0; i < ortho_lines.size(); i++)
-    {
-        if(ortho_lines[i].mid_point_is_hit(mouse_coord.x, mouse_coord.y)) {
-            return i;
+// Element hit detection for all elements included
+element_id_t element_hit_detection (const ImVec2 mouse_relative_coordinate) {
+    uint16_t num_elements = elements.size();
+    for(int idx = 0; idx < num_elements;  idx++) {
+        if (elements[idx]->is_hit(mouse_relative_coordinate.x, mouse_relative_coordinate.y)) {
+            return elements[idx]->unique_id;
         }
     }
     return -1;
@@ -47,7 +107,7 @@ int16_t mid_point_hit_detection(std::vector<orthogonal_line> ortho_lines, const 
 
 void Draw(bool* p_open)
 {
-    if (ImGui::Begin("Orthogonal Lines !", p_open))
+    if (ImGui::Begin("Custom Canvas !", p_open))
     {
 
         // ------------------------------------------------------------------------------------
@@ -55,7 +115,7 @@ void Draw(bool* p_open)
         // ------------------------------------------------------------------------------------
 
         // Points
-        static std::vector<Point> exits;
+        static std::vector<Point> new_points;
         
         // Drag Amount
         static ImVec2 scrolling_left_mouse(0.0f, 0.0f);
@@ -85,7 +145,12 @@ void Draw(bool* p_open)
 
 
         // UI Elements lists
-        std::vector<orthogonal_line> orthogonal_line_list;
+        static std::vector<orthogonal_line> orthogonal_line_list;
+
+
+        // Element hit detection
+        static element_id_t lock_element_id = -1;
+        element_id_t hit_element_id;
 
 
         // ------------------------------------------------------------------------------------
@@ -126,10 +191,23 @@ void Draw(bool* p_open)
         // Add points on left click without draging
         if (is_canvas_hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && delta_drag_left_mouse.x == 0.0f && delta_drag_left_mouse.y == 0.0f)
         {
-            exits.push_back(Point(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y));
+            if (new_points.size() < 2) {   // If there are less than two points
+                Point temp(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y, unique_id++);
+                add_point(temp);
+                new_points.push_back(temp);
+            }
+            else {                              // Error case
+                new_points.clear();
+            }
 
+            if (new_points.size() == 2) {       // If there are two points
+                add_orthogonal_line(orthogonal_line(new_points[0], new_points[1], unique_id++));
+                delete_element_by_id(new_points[0].unique_id);
+                delete_element_by_id(new_points[1].unique_id);
+                new_points.clear();
+            }
         }
-
+        
 
         // Save right mouse drag amounts
         if (is_canvas_held && ImGui::IsMouseDragging(ImGuiMouseButton_Right))
@@ -146,45 +224,31 @@ void Draw(bool* p_open)
             scrolling_left_mouse.y += io.MouseDelta.y;
         }
 
-       
-        // Mouse locked element ids
-        static int16_t lock_point_id = -1;
-        static int16_t lock_mid_point_id = -1;
-
+    
         // Element hit detection
-        int16_t hit_point = point_hit_detection(exits, mouse_pos_in_canvas);
-        int16_t hit_mid_point = mid_point_hit_detection(orthogonal_line_list, mouse_pos_in_canvas);
+        hit_element_id = element_hit_detection(mouse_pos_in_canvas);
+
 
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            if (hit_point != -1) {
-                lock_point_id = hit_point;
-            } else if (hit_mid_point != -1) {
-                lock_mid_point_id = hit_mid_point;
+            if (hit_element_id != -1) {
+                lock_element_id = hit_element_id;
+                lock_hit_point_by_id(lock_element_id);
             }
         }
 
         if (is_canvas_held) {
-            if (lock_point_id != -1) {
-                exits[lock_point_id].update_point(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y);
-            } else if (lock_mid_point_id != -1) {
-                orthogonal_line_list[lock_mid_point_id].dragMidpoint(delta_drag_left_mouse.x, delta_drag_left_mouse.y);
+            if (lock_element_id != -1) {
+                move_element_point_by_id(lock_element_id, mouse_pos_in_canvas.x, mouse_pos_in_canvas.y);
             }
         }
 
         // Release lock elements when released
         if (!is_canvas_held) {
-            lock_point_id = -1;
-            lock_mid_point_id = -1;
+            lock_element_id = -1;
+            release_hit_point_by_id(lock_element_id);
+            // TODO: Update last locked element clear
         }
 
-
-        std::cout << "The hit point is " << lock_point_id << " the hit ortho is " << lock_mid_point_id << "mid_point " << hit_mid_point<< std::endl;
-
-        for (int i = 0; i + 1 < exits.size(); i += 2)
-        {
-            // Add orthogonal lines to be drawn
-            orthogonal_line_list.push_back(orthogonal_line(exits[i], exits[i + 1]));
-        }
 
         // ------------------------------------------------------------------------------------
         // ------------------------ Drawing ---------------------------------------------------
@@ -205,20 +269,31 @@ void Draw(bool* p_open)
                 draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
         }
 
-        /* Put white circles on every left click point */
 
-        for(int i = 0; i < exits.size(); i++) {
-            draw_list->AddCircleFilled(ImVec2(origin.x + exits[i].getX(), origin.y + exits[i].getY()), 5, IM_COL32(255, 255, 255, 255));
-        }
-
-        /* Draw Orthogonal Lines */
-        for(int i = 0; i < orthogonal_line_list.size(); i++)
-        {
-            std::vector<straight_line> line_list = orthogonal_line_list[i].GetLineList();
-
-            for (int n = 0; n < line_list.size(); n++)
+        for(uint16_t idx = 0; idx < num_elements; idx++) {
+            switch (elements[idx]->element_type)
             {
-                draw_list->AddLine(ImVec2(origin.x + line_list[n].getPoint1().getX(), origin.y + line_list[n].getPoint1().getY()), ImVec2(origin.x + line_list[n].getPoint2().getX(), origin.y + line_list[n].getPoint2().getY()), IM_COL32(255, 255, 0, 255), 2.0f);
+                case POINT: {
+                    Point* pointPtr = dynamic_cast<Point*>(elements[idx].get());
+                    draw_list->AddCircleFilled(ImVec2(origin.x + pointPtr->getX(), origin.y + pointPtr->getY()), 5, IM_COL32(255, 255, 255, 255));
+                    break;
+                }
+                case STRAIGHT_LINE: {
+                    straight_line* straight_line_ptr = dynamic_cast<straight_line*>(elements[idx].get());
+                    draw_list->AddLine(ImVec2(origin.x + straight_line_ptr->getPoint1().getX(), origin.y + straight_line_ptr->getPoint1().getY()), ImVec2(origin.x + straight_line_ptr->getPoint2().getX(), origin.y + straight_line_ptr->getPoint2().getY()), IM_COL32(255, 255, 0, 255), 2.0f);
+                    break;
+                }
+                case ORTHOGONAL_LINE: {
+                    orthogonal_line* orthogonal_line_ptr = dynamic_cast<orthogonal_line*>(elements[idx].get());
+                    std::vector<straight_line> line_list = orthogonal_line_ptr->GetLineList();
+                    for(int j = 0; j < line_list.size(); j++) {
+                        draw_list->AddLine(ImVec2(origin.x + line_list[j].getPoint1().getX(), origin.y + line_list[j].getPoint1().getY()), ImVec2(origin.x + line_list[j].getPoint2().getX(), origin.y + line_list[j].getPoint2().getY()), IM_COL32(255, 255, 0, 255), 2.0f);
+                    }
+                    break;
+                }
+
+                default:
+                    break;
             }
         }
 

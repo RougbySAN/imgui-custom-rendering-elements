@@ -1,9 +1,10 @@
 #include "point.h"
 
-
 // Constructor
-Point::Point(const float xCoord, const float yCoord) : x(xCoord), y(yCoord) {}
-Point::Point() : x(0), y(0) {}
+Point::Point(const float xCoord, const float yCoord, const element_id_t _unique_id) : x(xCoord), y(yCoord), element(POINT, _unique_id) {}
+Point::Point(const Point& _p) : x(_p.getX()),  y(_p.getY()), element(POINT, _p.unique_id) {}
+Point::Point() : x(0), y(0), element(POINT, 0) {}
+
 
 // Getters and setters for x and y coordinates
 float Point::getX() const { return x; }
@@ -12,15 +13,6 @@ void Point::setX(const float newX) { x = newX; }
 float Point::getY() const { return y; }
 void Point::setY(const float newY) { y = newY; }
 
-void Point::drag_point(const float _dx, const float _dy) {
-    x += _dx;
-    y += _dy;
-}
-
-void Point::update_point(const float _x, const float _y) {
-    x = _x;
-    y = _y;
-}
 
 // Function to calculate distance between this point and another point
 double Point::distanceTo(const Point& other) const {
@@ -36,12 +28,39 @@ double Point::distanceTo(const float _x, const float _y) const {
     return std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
 }
 
-// Hit detection with margin
-bool Point::isHit(const Point& other) const {
-    return distanceTo(other) <= POINT_HIT_DETECTION_MARGIN;
-}
+
+/* --------------------------------PUBLIC OVERRIDEN FUNCTIONS --------------------------------- */
 
 // Hit detection with margin for x and y coordinates
-bool Point::isHit(const float _x, const float _y) const {
+bool Point::is_hit(const float _x, const float _y) {
     return distanceTo(_x, _y) <= POINT_HIT_DETECTION_MARGIN;
+}
+
+// Drag/Move Whole Element as a shape
+void Point::drag_element(const float _dx, const float _dy) {
+    drag_point(_dx, _dy);
+}
+void Point::move_element(const float _x, const float _y) {
+    update_point(_x, _y);
+}
+
+// Drag/Move hit point of element and recalculate shape
+void Point::drag_element_point(const float _dx, const float _dy) {
+    drag_point(_dx, _dy);
+}
+void Point::move_element_point(const float _x, const float _y) {
+    update_point(_x, _y);
+}
+
+
+/* -------------------------------- PRIVATE HELPER FUNCTIONS----------------------------------- */
+
+void Point::drag_point(const float _dx, const float _dy) {
+    x += _dx;
+    y += _dy;
+}
+
+void Point::update_point(const float _x, const float _y) {
+    x = _x;
+    y = _y;
 }
