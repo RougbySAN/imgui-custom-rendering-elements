@@ -1,2 +1,2 @@
 # imgui-custom-rendering-primitives
-Dear ImGui based custome element and primitive drawer.
+Dear ImGui based custom element and primitive drawer.
