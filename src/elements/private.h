@@ -8,6 +8,8 @@ typedef enum element_type {
     ORTHOGONAL_LINE,
 
     TOTAL_NUM_ELEMENTS,
+
+    NONE,
 }element_type_t;
 
 

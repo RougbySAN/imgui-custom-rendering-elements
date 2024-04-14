@@ -141,6 +141,7 @@ void Draw(bool* p_open)
 
         // Is adding element
         static bool is_adding_element = false;
+        static element_type_t is_adding_element_type = NONE;
 
         // Mouse cursor type
         static ImGuiMouseCursor current_cursor = ImGuiMouseCursor_Arrow;
@@ -195,28 +196,49 @@ void Draw(bool* p_open)
 
 
         // Add points on left click without draging
-        if (is_canvas_hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && delta_drag_left_mouse.x == 0.0f && delta_drag_left_mouse.y == 0.0f)
+        if (is_adding_element && is_canvas_hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && delta_drag_left_mouse.x == 0.0f && delta_drag_left_mouse.y == 0.0f)
         {
-            if (new_points.size() < 2) {   // If there are less than two points
+            switch (is_adding_element_type)
+            {
+            case POINT: {
                 Point temp(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y, unique_id++);
                 add_point(temp);
+                is_adding_element = false;
+                is_adding_element_type = NONE;
+                current_cursor = ImGuiMouseCursor_Arrow;
+                break;
+            }
+            case STRAIGHT_LINE: {
+                
+                Point temp(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y, unique_id++);
                 new_points.push_back(temp);
-            }
-            else {                              // Error case
-                new_points.clear();
-            }
 
-            if (new_points.size() == 2) {       // If there are two points
-                add_orthogonal_line(orthogonal_line(new_points[0], new_points[1], unique_id++));
-                delete_element_by_id(new_points[0].unique_id);
-                delete_element_by_id(new_points[1].unique_id);
-                new_points.clear();
+                if (new_points.size() >= 2) {       // If there are two points
+                    add_straight_line(straight_line(new_points[0], new_points[1], unique_id++));
+                    new_points.clear();
+                    is_adding_element = false;
+                    is_adding_element_type = NONE;
+                    current_cursor = ImGuiMouseCursor_Arrow;
+                }
+                break;
+            }
+            case ORTHOGONAL_LINE: {
+                Point temp(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y, unique_id++);
+                new_points.push_back(temp);
+
+                if (new_points.size() >= 2) {       // If there are two points
+                    add_orthogonal_line(orthogonal_line(new_points[0], new_points[1], unique_id++));
+                    new_points.clear();
+                    is_adding_element = false;
+                    is_adding_element_type = NONE;
+                    current_cursor = ImGuiMouseCursor_Arrow;
+                }
+                break;
+            }
+            default:
+                break;
             }
         }
-
-
-        
-        
 
         // Save right mouse drag amounts
         if (is_canvas_held && ImGui::IsMouseDragging(ImGuiMouseButton_Right))
@@ -267,18 +289,22 @@ void Draw(bool* p_open)
             
             if (ImGui::MenuItem("Add Point", NULL, false, !is_adding_element)) {
                 is_adding_element = true;
+                is_adding_element_type = POINT;
                 current_cursor = ImGuiMouseCursor_Hand;
             }
             if (ImGui::MenuItem("Add Straight Line", NULL, false, !is_adding_element)) {
                 is_adding_element = true;
+                is_adding_element_type = STRAIGHT_LINE;
                 current_cursor = ImGuiMouseCursor_Hand;
             }
             if (ImGui::MenuItem("Add Orthogonal Line", NULL, false, !is_adding_element)) {
                 is_adding_element = true;
+                is_adding_element_type = ORTHOGONAL_LINE;
                 current_cursor = ImGuiMouseCursor_Hand;
             }
             if (ImGui::MenuItem("Cancel", NULL, false, is_adding_element)) {
                 is_adding_element = false;
+                is_adding_element_type = NONE;
                 current_cursor = ImGuiMouseCursor_Arrow;
             }
 
