@@ -139,6 +139,12 @@ void Draw(bool* p_open)
         bool is_canvas_hovered = false;
         bool is_canvas_held = false;
 
+        // Is adding element
+        static bool is_adding_element = false;
+
+        // Mouse cursor type
+        static ImGuiMouseCursor current_cursor = ImGuiMouseCursor_Arrow;
+
         ImGui::Checkbox("Enable grid", &opt_enable_grid);
         ImGui::Checkbox("Enable context menu", &opt_enable_context_menu);
         ImGui::Text("Mouse Left: Click to add points,\nMouse Right: drag to scroll, click for context menu.");
@@ -207,6 +213,9 @@ void Draw(bool* p_open)
                 new_points.clear();
             }
         }
+
+
+        
         
 
         // Save right mouse drag amounts
@@ -248,6 +257,35 @@ void Draw(bool* p_open)
             release_hit_point_by_id(lock_element_id);
             // TODO: Update last locked element clear
         }
+
+
+        // Context menu (under default mouse threshold)
+        if (delta_drag_right_mouse.x == 0.0f && delta_drag_right_mouse.y == 0.0f)
+            ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
+        if (ImGui::BeginPopup("context"))
+        {
+            
+            if (ImGui::MenuItem("Add Point", NULL, false, !is_adding_element)) {
+                is_adding_element = true;
+                current_cursor = ImGuiMouseCursor_Hand;
+            }
+            if (ImGui::MenuItem("Add Straight Line", NULL, false, !is_adding_element)) {
+                is_adding_element = true;
+                current_cursor = ImGuiMouseCursor_Hand;
+            }
+            if (ImGui::MenuItem("Add Orthogonal Line", NULL, false, !is_adding_element)) {
+                is_adding_element = true;
+                current_cursor = ImGuiMouseCursor_Hand;
+            }
+            if (ImGui::MenuItem("Cancel", NULL, false, is_adding_element)) {
+                is_adding_element = false;
+                current_cursor = ImGuiMouseCursor_Arrow;
+            }
+
+            ImGui::EndPopup();
+        }
+
+        ImGui::SetMouseCursor(current_cursor);
 
 
         // ------------------------------------------------------------------------------------
