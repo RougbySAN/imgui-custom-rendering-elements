@@ -44,33 +44,35 @@ bool rectangle::is_hit(const float _x, const float _y) {
     float right = top_left.getX() + width;
     float bottom = top_left.getY() + height;
 
+    relative_recorded_hit_coord = Point(top_left.getX() - _x, top_left.getY() - _y);
+
     return _x >= top_left.getX() && _x <= right && _y >= top_left.getY() && _y <= bottom;
 
 }
 
 
 void rectangle::drag_element(const float _dx, const float _dy) {
-    top_left.drag_element(_dx, _dy);
+    top_left.drag_element(_dx + relative_locked_hit_coord.getX(), _dy + relative_locked_hit_coord.getY());
 }
 
 
 void rectangle::move_element(const float _x, const float _y) {
-    top_left.move_element(_x, _y);
+    top_left.move_element(_x + relative_locked_hit_coord.getX(), _y + relative_locked_hit_coord.getY());
 }
 
 
 void rectangle::drag_element_point(const float _dx, const float _dy) {
-    top_left.drag_element(_dx, _dy);    
+    top_left.drag_element(_dx + relative_locked_hit_coord.getX(), _dy + relative_locked_hit_coord.getY());    
 }
 
 
 void rectangle::move_element_point(const float _x, const float _y) {
-    top_left.move_element(_x, _y);
+    top_left.move_element(_x + relative_locked_hit_coord.getX(), _y + relative_locked_hit_coord.getY());
 }
 
 
 void rectangle::lock_element_hit_point() {
-    /* Nothing */
+    relative_locked_hit_coord = relative_recorded_hit_coord;
 }
 
 

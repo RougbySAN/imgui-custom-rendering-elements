@@ -45,6 +45,9 @@ public:
 
 private:
     /* PRIVATE HELPER FUNCTIONS */
+
+    Point relative_recorded_hit_coord;
+    Point relative_locked_hit_coord;
     
 };
 
