@@ -5,6 +5,7 @@ add_library(${PROJECT_NAME} STATIC
                                 orthogonal_line.cpp
                                 straight_line.cpp
                                 point.cpp
+                                rectangle.cpp
 )
 
 

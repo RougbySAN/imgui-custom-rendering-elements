@@ -6,6 +6,7 @@ typedef enum element_type {
     POINT = 0,
     STRAIGHT_LINE,
     ORTHOGONAL_LINE,
+    RECTANGLE,
 
     TOTAL_NUM_ELEMENTS,
 

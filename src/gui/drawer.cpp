@@ -28,6 +28,12 @@ static void add_orthogonal_line(const orthogonal_line& o) {
     num_elements++;
 }
 
+// Add rectangle to drawing elements
+static void add_rectangle(const rectangle& r) {
+    elements.push_back(std::make_unique<rectangle>(r));
+    num_elements++;
+}
+
 static void delete_element_by_id(const element_id_t _id) {
     // Check if id matches Lambda
     std::function<bool(const std::unique_ptr<element>&)> id_match = [_id](const std::unique_ptr<element>& elem) {
@@ -235,6 +241,17 @@ void Draw(bool* p_open)
                 }
                 break;
             }
+            case RECTANGLE: {
+                rectangle temp(Point(mouse_pos_in_canvas.x, mouse_pos_in_canvas.y), \
+                                180, \
+                                180, \
+                                unique_id++);
+                add_rectangle(temp);
+                is_adding_element = false;
+                is_adding_element_type = NONE;
+                current_cursor = ImGuiMouseCursor_Arrow;
+                break;
+            }
             default:
                 break;
             }
@@ -302,6 +319,11 @@ void Draw(bool* p_open)
                 is_adding_element_type = ORTHOGONAL_LINE;
                 current_cursor = ImGuiMouseCursor_Hand;
             }
+            if (ImGui::MenuItem("Add Rectangle", NULL, false, !is_adding_element)) {
+                is_adding_element = true;
+                is_adding_element_type = RECTANGLE;
+                current_cursor = ImGuiMouseCursor_Hand;
+            }
             if (ImGui::MenuItem("Cancel", NULL, false, is_adding_element)) {
                 is_adding_element = false;
                 is_adding_element_type = NONE;
@@ -350,6 +372,14 @@ void Draw(bool* p_open)
                 case ORTHOGONAL_LINE: {
                     orthogonal_line* orthogonal_line_ptr = dynamic_cast<orthogonal_line*>(elements[idx].get());
                     std::vector<straight_line> line_list = orthogonal_line_ptr->GetLineList();
+                    for(int j = 0; j < line_list.size(); j++) {
+                        draw_list->AddLine(ImVec2(origin.x + line_list[j].getPoint1().getX(), origin.y + line_list[j].getPoint1().getY()), ImVec2(origin.x + line_list[j].getPoint2().getX(), origin.y + line_list[j].getPoint2().getY()), IM_COL32(255, 255, 0, 255), 2.0f);
+                    }
+                    break;
+                }
+                case RECTANGLE: {
+                    rectangle* rectangle_ptr = dynamic_cast<rectangle*>(elements[idx].get());
+                    std::vector<straight_line> line_list = rectangle_ptr->GetLineList();
                     for(int j = 0; j < line_list.size(); j++) {
                         draw_list->AddLine(ImVec2(origin.x + line_list[j].getPoint1().getX(), origin.y + line_list[j].getPoint1().getY()), ImVec2(origin.x + line_list[j].getPoint2().getX(), origin.y + line_list[j].getPoint2().getY()), IM_COL32(255, 255, 0, 255), 2.0f);
                     }
