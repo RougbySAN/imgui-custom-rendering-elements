@@ -1,7 +1,7 @@
 #include "orthogonal_line.h"
 
 // Constructor
-orthogonal_line::orthogonal_line(const Point& point1, const Point& point2, const element_id_t _unique_id) : p1(point1), p2(point2), element(ORTHOGONAL_LINE, _unique_id) {
+orthogonal_line::orthogonal_line(const Point& point1, const Point& point2, const element_id_t _unique_id) : p1(point1), p2(point2), element(ORTHOGONAL_LINE, Color(), _unique_id) {
     calculateMidpoint(); // Calculate the midpoint upon construction
 
     calculateLineExits(p1.getX() - p2.getX(), p1.getY() - p2.getY());   // Calculate the cable exit direction from point
@@ -10,12 +10,12 @@ orthogonal_line::orthogonal_line(const Point& point1, const Point& point2, const
 orthogonal_line::orthogonal_line(const orthogonal_line& _o) :   p1(_o.getPoint1()), 
                                                                 p2(_o.getPoint2()), 
                                                                 mid_point(_o.getMidpoint()), 
-                                                                element(ORTHOGONAL_LINE, _o.unique_id), 
+                                                                element(ORTHOGONAL_LINE, Color(), _o.unique_id), 
                                                                 p1_exit(_o.p1_exit), 
                                                                 p2_exit(_o.p2_exit),
                                                                 recorded_hit_point(_o.recorded_hit_point) {}
 
-orthogonal_line::orthogonal_line(const float x1, const float y1, const float x2, const float y2, const element_id_t _unique_id) : element(ORTHOGONAL_LINE, _unique_id) {
+orthogonal_line::orthogonal_line(const float x1, const float y1, const float x2, const float y2, const element_id_t _unique_id) : element(ORTHOGONAL_LINE, Color(), _unique_id) {
     p1 = Point(x1, y1);
     p2 = Point(x2, y2);
 

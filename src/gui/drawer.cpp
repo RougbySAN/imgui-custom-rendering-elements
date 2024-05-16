@@ -361,19 +361,19 @@ void Draw(bool* p_open)
             {
                 case POINT: {
                     Point* pointPtr = dynamic_cast<Point*>(elements[idx].get());
-                    draw_list->AddCircleFilled(ImVec2(origin.x + pointPtr->getX(), origin.y + pointPtr->getY()), 5, IM_COL32(255, 255, 255, 255));
+                    draw_list->AddCircleFilled(ImVec2(origin.x + pointPtr->getX(), origin.y + pointPtr->getY()), 5, pointPtr->cl.getRGBA());
                     break;
                 }
                 case STRAIGHT_LINE: {
                     straight_line* straight_line_ptr = dynamic_cast<straight_line*>(elements[idx].get());
-                    draw_list->AddLine(ImVec2(origin.x + straight_line_ptr->getPoint1().getX(), origin.y + straight_line_ptr->getPoint1().getY()), ImVec2(origin.x + straight_line_ptr->getPoint2().getX(), origin.y + straight_line_ptr->getPoint2().getY()), IM_COL32(255, 255, 0, 255), 2.0f);
+                    draw_list->AddLine(ImVec2(origin.x + straight_line_ptr->getPoint1().getX(), origin.y + straight_line_ptr->getPoint1().getY()), ImVec2(origin.x + straight_line_ptr->getPoint2().getX(), origin.y + straight_line_ptr->getPoint2().getY()), straight_line_ptr->cl.getRGBA(), 2.0f);
                     break;
                 }
                 case ORTHOGONAL_LINE: {
                     orthogonal_line* orthogonal_line_ptr = dynamic_cast<orthogonal_line*>(elements[idx].get());
                     std::vector<straight_line> line_list = orthogonal_line_ptr->GetLineList();
                     for(int j = 0; j < line_list.size(); j++) {
-                        draw_list->AddLine(ImVec2(origin.x + line_list[j].getPoint1().getX(), origin.y + line_list[j].getPoint1().getY()), ImVec2(origin.x + line_list[j].getPoint2().getX(), origin.y + line_list[j].getPoint2().getY()), IM_COL32(255, 255, 0, 255), 2.0f);
+                        draw_list->AddLine(ImVec2(origin.x + line_list[j].getPoint1().getX(), origin.y + line_list[j].getPoint1().getY()), ImVec2(origin.x + line_list[j].getPoint2().getX(), origin.y + line_list[j].getPoint2().getY()), orthogonal_line_ptr->cl.getRGBA(), 2.0f);
                     }
                     break;
                 }
@@ -381,7 +381,7 @@ void Draw(bool* p_open)
                     rectangle* rectangle_ptr = dynamic_cast<rectangle*>(elements[idx].get());
                     std::vector<straight_line> line_list = rectangle_ptr->GetLineList();
                     for(int j = 0; j < line_list.size(); j++) {
-                        draw_list->AddLine(ImVec2(origin.x + line_list[j].getPoint1().getX(), origin.y + line_list[j].getPoint1().getY()), ImVec2(origin.x + line_list[j].getPoint2().getX(), origin.y + line_list[j].getPoint2().getY()), IM_COL32(255, 255, 0, 255), 2.0f);
+                        draw_list->AddLine(ImVec2(origin.x + line_list[j].getPoint1().getX(), origin.y + line_list[j].getPoint1().getY()), ImVec2(origin.x + line_list[j].getPoint2().getX(), origin.y + line_list[j].getPoint2().getY()), rectangle_ptr->cl.getRGBA(), 2.0f);
                     }
                     break;
                 }

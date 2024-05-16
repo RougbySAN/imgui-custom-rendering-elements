@@ -1,5 +1,6 @@
 #pragma once
 
+#include "color.h"
 #include "stdint.h"
 
 typedef enum element_type {
@@ -37,6 +38,12 @@ typedef enum orthogonal_line_points {
     OL_NONE,
 }orthogonal_line_points_t;
 
+
+typedef enum boarder {
+    BORDER,
+    BORDERLESS,
+}element_boarder_t;
+
 #define MID_POINT_DRAG_MARGIN 4.0f
 
 #define POINT_HIT_DETECTION_MARGIN 4.0f
@@ -50,9 +57,10 @@ class element {
 public:
     element_id_t unique_id;
     enum element_type element_type;
+    Color cl;
 
 public:
-    element(const enum element_type _type, const element_id_t _unique_id = 0) : element_type(_type), unique_id(_unique_id) {}
+    element(const enum element_type _type, const Color& _cl, const element_id_t _unique_id = 0) : element_type(_type), cl(_cl), unique_id(_unique_id) {}
 
     virtual ~element() {}
 

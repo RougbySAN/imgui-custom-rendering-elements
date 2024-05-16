@@ -5,25 +5,25 @@
 rectangle::rectangle(const Point& _top_left, const float _width, const float _height, const element_id_t unique_id) :  top_left(_top_left),
                                                                                                                         width(_width),
                                                                                                                         height(_height),
-                                                                                                                        element(RECTANGLE, unique_id) {}
+                                                                                                                        element(RECTANGLE, Color(), unique_id) {}
 
 
 rectangle::rectangle(const rectangle& rect) :   top_left(rect.top_left),
                                                 width(rect.width),
                                                 height(rect.height),
-                                                element(RECTANGLE, rect.unique_id) {}
+                                                element(RECTANGLE, Color(), rect.unique_id) {}
 
 
 rectangle::rectangle(const float _x, const float _y, const float _width, const float _height, const element_id_t unique_id) :   top_left(Point(_x, _y)),
                                                                                                                                     width(_width),
                                                                                                                                     height(_height),
-                                                                                                                                    element(RECTANGLE, unique_id) {}
+                                                                                                                                    element(RECTANGLE, Color(), unique_id) {}
 
 
 rectangle::rectangle() :    top_left(Point(0, 0)),
                             width(0),
                             height(0),
-                            element(RECTANGLE, 0) {}
+                            element(RECTANGLE, Color(), 0) {}
 
 // Getter functions
 const Point& rectangle::getTopLeft() const { return top_left; }

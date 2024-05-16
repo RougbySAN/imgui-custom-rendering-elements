@@ -1,9 +1,9 @@
 #include "point.h"
 
 // Constructor
-Point::Point(const float xCoord, const float yCoord, const element_id_t _unique_id) : x(xCoord), y(yCoord), element(POINT, _unique_id) {}
-Point::Point(const Point& _p) : x(_p.getX()),  y(_p.getY()), element(POINT, _p.unique_id) {}
-Point::Point() : x(0), y(0), element(POINT, 0) {}
+Point::Point(const float xCoord, const float yCoord, const element_id_t _unique_id) : x(xCoord), y(yCoord), element(POINT, Color(), _unique_id) {}
+Point::Point(const Point& _p) : x(_p.getX()),  y(_p.getY()), element(POINT, Color(), _p.unique_id) {}
+Point::Point() : x(0), y(0), element(POINT, Color(), 0) {}
 
 
 // Getters and setters for x and y coordinates

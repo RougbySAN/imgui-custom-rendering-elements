@@ -4,19 +4,19 @@
 // Constructors
 straight_line::straight_line(const Point& point1, const Point& point2, const element_id_t unique_id) :  p1(point1),
                                                                                                         p2(point2),
-                                                                                                        element(STRAIGHT_LINE, unique_id),
+                                                                                                        element(STRAIGHT_LINE, Color(), unique_id),
                                                                                                         recorded_hit_point(SL_NONE) {}
 
 
 straight_line::straight_line(const straight_line& _s) : p1(_s.getPoint1()),
                                                         p2(_s.getPoint2()),
-                                                        element(STRAIGHT_LINE, _s.unique_id),
+                                                        element(STRAIGHT_LINE, Color(), _s.unique_id),
                                                         recorded_hit_point(_s.recorded_hit_point) {}
 
                                                         
 straight_line::straight_line() :    p1(Point()),
                                     p2(Point()),
-                                    element(STRAIGHT_LINE, 0),
+                                    element(STRAIGHT_LINE, Color(), 0),
                                     recorded_hit_point(SL_NONE) {}
 
 // Getter functions for endpoints

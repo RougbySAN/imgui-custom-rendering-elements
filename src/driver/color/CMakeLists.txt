@@ -1,11 +1,7 @@
-project(elements)
+project(color)
 
 add_library(${PROJECT_NAME} STATIC 
-                                elements.cpp
-                                orthogonal_line.cpp
-                                straight_line.cpp
-                                point.cpp
-                                rectangle.cpp
+                                color.cpp
 )
 
 
@@ -19,7 +15,6 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} 
                                         PUBLIC
-                                            color
                                             # Public directories
                                         PRIVATE
                                             # Private directories
